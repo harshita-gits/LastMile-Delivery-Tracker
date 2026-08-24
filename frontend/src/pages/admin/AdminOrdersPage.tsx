@@ -4,69 +4,15 @@ import { api } from "../../api/client";
 import { Order, OrderStatus, Zone } from "../../types";
 import { StatusBadge } from "../../components/StatusBadge";
 
-const STATUSES: OrderStatus[] = [
-  "CREATED", "ASSIGNED", "PICKED_UP", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED", "FAILED", "RESCHEDULED",
-];
-
-export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [zones, setZones] = useState<Zone[]>([]);
-  const [status, setStatus] = useState("");
-  const [zoneId, setZoneId] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.get("/admin/zones").then(({ data }) => setZones(data.zones));
-  }, []);
-
-  const load = () => {
-    setLoading(true);
-    const params: Record<string, string> = {};
-    if (status) params.status = status;
-    if (zoneId) params.zoneId = zoneId;
-    api.get("/orders", { params }).then(({ data }) => setOrders(data.orders)).finally(() => setLoading(false));
-  };
-
-  useEffect(load, [status, zoneId]);
-
-  return (
-    <div className="max-w-5xl mx-auto mt-8">
-      <h1 className="text-xl font-bold mb-6">All orders</h1>
-
-      <div className="flex gap-3 mb-4">
-        <select className="border rounded-md px-3 py-2 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All statuses</option>
-          {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select className="border rounded-md px-3 py-2 text-sm" value={zoneId} onChange={(e) => setZoneId(e.target.value)}>
-          <option value="">All pickup zones</option>
-          {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
-        </select>
-      </div>
-
-      {loading ? (
-        <p className="text-slate-500">Loading...</p>
-      ) : orders.length === 0 ? (
-        <p className="text-slate-500">No orders match these filters.</p>
-      ) : (
-        <div className="bg-white rounded-xl border shadow-sm divide-y">
-          {orders.map((o) => (
-            <Link key={o.id} to={`/orders/${o.id}`} className="flex items-center justify-between px-5 py-4 hover:bg-slate-50">
-              <div>
-                <p className="font-medium">{o.orderNumber}</p>
-                <p className="text-sm text-slate-500">
-                  {o.customer?.name} · {o.pickupZone?.name ?? o.pickupPincode} → {o.dropZone?.name ?? o.dropPincode}
-                  {o.assignedAgent ? ` · agent: ${o.assignedAgent.user.name}` : " · unassigned"}
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">₹{o.totalCharge}</span>
-                <StatusBadge status={o.status} />
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+const STATUSES: OrderStatus[]=["CREATED","ASSIGNED","PICKED_UP","IN_TRANSIT","OUT_FOR_DELIVERY","DELIVERED","FAILED","RESCHEDULED"];
+export default function AdminOrdersPage(){
+ const [orders,setOrders]=useState<Order[]>([]);const [zones,setZones]=useState<Zone[]>([]);const [status,setStatus]=useState("");const [zoneId,setZoneId]=useState("");const [loading,setLoading]=useState(true);
+ useEffect(()=>{api.get('/admin/zones').then(({data})=>setZones(data.zones));},[]);
+ const load=()=>{setLoading(true);const params:Record<string,string>={};if(status)params.status=status;if(zoneId)params.zoneId=zoneId;api.get('/orders',{params}).then(({data})=>setOrders(data.orders)).finally(()=>setLoading(false));};useEffect(load,[status,zoneId]);
+ const delivered=orders.filter(o=>o.status==='DELIVERED').length, active=orders.filter(o=>!['DELIVERED','FAILED'].includes(o.status)).length, failed=orders.filter(o=>o.status==='FAILED').length;
+ return <div className="page-shell"><div className="flex items-end justify-between"><div><p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Operations center</p><h1 className="page-title mt-2">Delivery dashboard</h1><p className="page-subtitle">Monitor orders, agents and shipment flow in real time.</p></div><div className="text-xs text-slate-400">Admin control panel</div></div>
+ <div className="stat-grid"><div className="stat-card"><div className="stat-label">Total orders</div><div className="stat-value">{orders.length}</div><div className="stat-note">Current view</div></div><div className="stat-card"><div className="stat-label">In progress</div><div className="stat-value">{active}</div><div className="stat-note">Moving through network</div></div><div className="stat-card"><div className="stat-label">Delivered</div><div className="stat-value">{delivered}</div><div className="stat-note">Successful deliveries</div></div><div className="stat-card"><div className="stat-label">Exceptions</div><div className="stat-value">{failed}</div><div className="text-xs mt-1 text-red-500">Requires attention</div></div></div>
+ <div className="card p-4 mb-5 flex flex-wrap gap-3 items-center"><span className="text-xs font-bold text-slate-500 mr-2">FILTER ORDERS</span><select className="px-3 py-2 text-sm" value={status} onChange={e=>setStatus(e.target.value)}><option value="">All statuses</option>{STATUSES.map(s=><option key={s} value={s}>{s.replace(/_/g,' ')}</option>)}</select><select className="px-3 py-2 text-sm" value={zoneId} onChange={e=>setZoneId(e.target.value)}><option value="">All pickup zones</option>{zones.map(z=><option key={z.id} value={z.id}>{z.name}</option>)}</select></div>
+ {loading?<div className="card p-10 text-center text-slate-400">Loading orders...</div>:orders.length===0?<div className="card p-10 text-center text-slate-400">No orders match these filters.</div>:<div className="card order-list-card"><div className="px-5 py-4 border-b border-slate-100 flex justify-between"><span className="section-title">All shipments</span><span className="text-xs text-slate-400">{orders.length} records</span></div>{orders.map(o=><Link key={o.id} to={`/orders/${o.id}`} className="order-row"><div><p className="order-id">{o.orderNumber}</p><p className="order-route">{o.customer?.name} · {o.pickupZone?.name??o.pickupPincode} → {o.dropZone?.name??o.dropPincode}{o.assignedAgent?` · ${o.assignedAgent.user.name}`:' · unassigned'}</p></div><div className="flex items-center gap-5"><span className="text-sm font-bold text-slate-700">₹{o.totalCharge}</span><StatusBadge status={o.status}/><span className="text-slate-300">›</span></div></Link>)}</div>}
+ </div>;
 }

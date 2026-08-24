@@ -27,7 +27,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Navbar />
-        <main className="px-4 pb-16">
+        <main className="app-main">
           <Routes>
             <Route path="/" element={<HomeRedirect />} />
             <Route path="/login" element={<LoginPage />} />

@@ -3,62 +3,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { extractErrorMessage } from "../../api/client";
 
-export default function RegisterPage() {
-  const { register } = useAuth();
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSubmitting(true);
-    try {
-      await register(name, email, password, phone || undefined);
-      navigate("/orders");
-    } catch (err) {
-      setError(extractErrorMessage(err));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="max-w-sm mx-auto mt-16 bg-white p-8 rounded-xl shadow-sm border">
-      <h1 className="text-xl font-bold mb-6">Create a customer account</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Name</label>
-          <input required className="w-full border rounded-md px-3 py-2" value={name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input type="email" required className="w-full border rounded-md px-3 py-2" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Phone (for SMS updates)</label>
-          <input className="w-full border rounded-md px-3 py-2" value={phone} onChange={(e) => setPhone(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
-          <input type="password" required minLength={6} className="w-full border rounded-md px-3 py-2" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button
-          disabled={submitting}
-          className="w-full bg-brand-600 text-white rounded-md py-2 font-medium hover:bg-brand-700 disabled:opacity-60"
-        >
-          {submitting ? "Creating account..." : "Register"}
-        </button>
-      </form>
-      <p className="text-sm text-slate-500 mt-4">
-        Already have an account?{" "}
-        <Link to="/login" className="text-brand-600 font-medium">Log in</Link>
-      </p>
-    </div>
-  );
+export default function RegisterPage(){
+ const {register}=useAuth(); const navigate=useNavigate(); const [name,setName]=useState("");const [email,setEmail]=useState("");const [phone,setPhone]=useState("");const [password,setPassword]=useState("");const [error,setError]=useState("");const [submitting,setSubmitting]=useState(false);
+ const submit=async(e:FormEvent)=>{e.preventDefault();setError("");setSubmitting(true);try{await register(name,email,password,phone||undefined);navigate("/orders");}catch(err){setError(extractErrorMessage(err));}finally{setSubmitting(false);}};
+ return <div className="auth-page"><div className="auth-card"><div className="auth-logo"><span className="brand-mark">LM</span><span><strong>LastMile</strong><small>Delivery Tracker</small></span></div><h1>Create your account</h1><p className="text-sm text-slate-400 mt-2 mb-7">Start sending and tracking shipments.</p>
+ <form onSubmit={submit} className="space-y-4"><div><label className="block mb-2">Full name</label><input required className="w-full px-4 py-3" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)}/></div><div><label className="block mb-2">Email address</label><input type="email" required className="w-full px-4 py-3" placeholder="you@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></div><div><label className="block mb-2">Phone <span className="font-normal text-slate-400">(optional)</span></label><input className="w-full px-4 py-3" placeholder="10-digit phone" value={phone} onChange={e=>setPhone(e.target.value)}/></div><div><label className="block mb-2">Password</label><input type="password" required minLength={6} className="w-full px-4 py-3" placeholder="At least 6 characters" value={password} onChange={e=>setPassword(e.target.value)}/></div>{error&&<p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}<button disabled={submitting} className="w-full bg-brand-600 text-white rounded-xl py-3 font-bold disabled:opacity-60">{submitting?"Creating account...":"Create account"}</button></form><p className="text-sm text-slate-400 mt-6 text-center">Already registered? <Link to="/login" className="text-blue-600 font-bold">Sign in</Link></p>
+ </div></div>;
 }

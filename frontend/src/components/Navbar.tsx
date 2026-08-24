@@ -1,54 +1,81 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
+const icons: Record<string, string> = {
+  dashboard: "⌂",
+  orders: "▣",
+  tracking: "⌖",
+  deliveries: "▰",
+  zones: "◈",
+  rates: "₹",
+  agents: "♙",
+};
 
 export function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  return (
-    <nav className="bg-white border-b sticky top-0 z-10">
-      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link to="/" className="font-bold text-brand-600">
-          Last-Mile Delivery
+  if (!user) {
+    return (
+      <header className="public-nav">
+        <Link to="/login" className="brand-lockup">
+          <span className="brand-mark">LM</span>
+          <span><strong>LastMile</strong><small>Delivery Tracker</small></span>
         </Link>
-        <div className="flex items-center gap-4 text-sm">
-          {user?.role === "CUSTOMER" && (
-            <>
-              <Link to="/orders/new" className="hover:text-brand-600">New Order</Link>
-              <Link to="/orders" className="hover:text-brand-600">My Orders</Link>
-            </>
-          )}
-          {user?.role === "AGENT" && (
-            <Link to="/agent" className="hover:text-brand-600">My Deliveries</Link>
-          )}
-          {user?.role === "ADMIN" && (
-            <>
-              <Link to="/admin/orders" className="hover:text-brand-600">Orders</Link>
-              <Link to="/admin/zones" className="hover:text-brand-600">Zones</Link>
-              <Link to="/admin/rate-cards" className="hover:text-brand-600">Rate Cards</Link>
-              <Link to="/admin/agents" className="hover:text-brand-600">Agents</Link>
-            </>
-          )}
-          {user ? (
-            <>
-              <span className="text-slate-500">{user.name} ({user.role})</span>
-              <button
-                onClick={handleLogout}
-                className="px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="hover:text-brand-600">Login</Link>
-          )}
-        </div>
+        <Link to="/login" className="public-login">Sign in →</Link>
+      </header>
+    );
+  }
+
+  const items = user.role === "CUSTOMER"
+    ? [
+        { to: "/orders", label: "Dashboard", icon: "dashboard" },
+        { to: "/orders", label: "My Orders", icon: "orders" },
+        { to: "/orders/new", label: "Create Shipment", icon: "tracking" },
+      ]
+    : user.role === "AGENT"
+      ? [{ to: "/agent", label: "My Deliveries", icon: "deliveries" }]
+      : [
+          { to: "/admin/orders", label: "Dashboard", icon: "dashboard" },
+          { to: "/admin/orders", label: "Orders", icon: "orders" },
+          { to: "/admin/zones", label: "Zones & Pincodes", icon: "zones" },
+          { to: "/admin/rate-cards", label: "Rate Cards", icon: "rates" },
+          { to: "/admin/agents", label: "Delivery Agents", icon: "agents" },
+        ];
+
+  return (
+    <aside className="app-sidebar">
+      <Link to="/" className="brand-lockup sidebar-brand">
+        <span className="brand-mark">LM</span>
+        <span><strong>LastMile</strong><small>Delivery Tracker</small></span>
+      </Link>
+
+      <div className="sidebar-section-label">WORKSPACE</div>
+      <nav className="sidebar-links">
+        {items.map((item, index) => {
+          const active = location.pathname === item.to || (index === 0 && location.pathname === "/");
+          return (
+            <Link key={`${item.to}-${item.label}`} to={item.to} className={active ? "sidebar-link active" : "sidebar-link"}>
+              <span className="sidebar-icon">{icons[item.icon]}</span>
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="sidebar-spacer" />
+      <div className="user-card">
+        <div className="avatar">{user.name?.slice(0, 1).toUpperCase()}</div>
+        <div className="user-copy"><strong>{user.name}</strong><span>{user.role}</span></div>
+        <button className="logout-icon" onClick={handleLogout} title="Logout">↪</button>
       </div>
-    </nav>
+      <div className="sidebar-footer">© 2026 LastMile<br />Smart delivery operations</div>
+    </aside>
   );
 }
