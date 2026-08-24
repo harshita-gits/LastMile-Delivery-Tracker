@@ -7,7 +7,9 @@ import { StatusBadge } from "../../components/StatusBadge";
 export default function AgentDashboard(){
  const [orders,setOrders]=useState<Order[]>([]);const [availability,setAvailability]=useState<AgentAvailability>("AVAILABLE");const [loading,setLoading]=useState(true);
  const load=()=>Promise.all([api.get("/agents/my-orders"),api.get("/agents/me")]).then(([a,b])=>{setOrders(a.data.orders);setAvailability(b.data.agent.availability)}).finally(()=>setLoading(false));
- useEffect(load,[]);
+ useEffect(() => {
+  load();
+}, []);
  const toggle=async(v:AgentAvailability)=>{setAvailability(v);await api.patch("/agents/me",{availability:v});};
  if(loading)return <div className="page-shell"><div className="card p-8 text-center text-slate-500">Loading deliveries...</div></div>;
  const active=orders.filter(o=>!['DELIVERED','FAILED'].includes(o.status));const past=orders.filter(o=>['DELIVERED','FAILED'].includes(o.status));
