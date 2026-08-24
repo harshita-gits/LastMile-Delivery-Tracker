@@ -752,14 +752,14 @@ OrderStatusHistory
 
 ```text
 Email: admin@lastmile.com
-Password: YOUR_ADMIN_PASSWORD
+Password: Admin1@123
 ```
 
 ### 🚚 Delivery Agent
 
 ```text
 Email: agent1@lastmile.com
-Password: YOUR_AGENT_PASSWORD
+Password: Agent1@123
 ```
 
 ### 👤 Customer
@@ -785,7 +785,7 @@ http://localhost:5173/register
 ### Health Check
 
 ```text
-YOUR-BACKEND-URL/api/health
+https://lastmile-delivery-backend-z8vo.onrender.com/api/health
 ```
 
 > Replace the placeholder URLs after deployment.
